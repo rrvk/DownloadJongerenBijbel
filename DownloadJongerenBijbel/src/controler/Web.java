@@ -25,7 +25,7 @@ public class Web {
         		check = true;
         	}
         	html += inputLine.trim();
-        	if (check && inputLine.contains("</div>")){
+        	if (check && inputLine.contains("<div id=\"tx_jongerenbijbel_footnotes\" style=\"display: none;\">")){
         		check = false;
         		return cleanHTML(html);
         	}
@@ -41,6 +41,7 @@ public class Web {
 	 * @return De tekst
 	 */
 	private String cleanHTML(String html){
+		html = html.replaceAll("<div id=\"tx_jongerenbijbel_footnotes\" style=\"display: none;\"", "");
 		html = html.replaceAll("<div id=\"main\">", "");
 		html = html.replaceAll("<div class=\"poetry\">", "");
 		html = html.replaceAll("<div class=\"q\">", "");
