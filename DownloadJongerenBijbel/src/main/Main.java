@@ -12,7 +12,7 @@ public class Main {
 		for (int i = 0; i < hoofdstuknummers.length; i++) {
 			count +=Integer.parseInt(hoofdstuknummers[i]);
 		}
-		String standaardUrl = "http://www.jongerenbijbel.nl/bijbel/lezen/";
+		String standaardUrl = "https://bijbel.eo.nl/bijbel/";
 		String[] url = new String[count];
 		// lijst met bijbel boeken maken
 		count =0;
@@ -28,7 +28,6 @@ public class Main {
 				}
 			}
 		}
-		for (int i = 0; i < url.length; i++) {
 			ThreadWorker t = new ThreadWorker(url[i]);
 			new Thread(t).start();
 		}

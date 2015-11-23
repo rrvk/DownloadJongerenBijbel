@@ -1,9 +1,16 @@
 package controler;
 
+import java.awt.im.InputContext;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 public class Web {
 	/**
@@ -11,26 +18,27 @@ public class Web {
 	 * Structuur jongerenbijbel.nl //29-12-2014
 	 * Wanneer null terug gegeven dan is er geen geldige iets gevonden
 	 */
+	@SuppressWarnings("unused")
 	public String accesSite(String url) throws IOException{
 		URL oracle = new URL(url);
         BufferedReader in = new BufferedReader(
         new InputStreamReader(oracle.openStream()));
-
         String inputLine;
         String html="";
-        boolean check = false;
         while ((inputLine = in.readLine()) != null){
-        	if (inputLine.contains("<div id=\"main\">")){
-        		html = "";
-        		check = true;
-        	}
-        	html += inputLine.trim();
-        	if (check && inputLine.contains("<div id=\"tx_jongerenbijbel_footnotes\" style=\"display: none;\">")){
-        		check = false;
-        		return cleanHTML(html);
-        	}
+        	html += inputLine;
         }
         in.close();
+        Document document = Jsoup.parse(html);
+        Elements divs = document.select("div");
+        for (Element div : divs) {
+        	// get the class name
+        	Attributes attrClass = div.attributes();
+        	String classValue = attrClass.get("class");
+    		if (classValue.equals("bible")){
+    			System.out.println(div.ownText());
+    		}
+        }
         return null;
 	}
 	
