@@ -36,7 +36,7 @@ public class Web {
         	Attributes attrClass = div.attributes();
         	String classValue = attrClass.get("class");
     		if (classValue.equals("bible")){
-    			return cleanHtml(div);
+    			return cleanHTML(getHtml(div));
     		}
         }
         return null;
@@ -45,7 +45,7 @@ public class Web {
 	 * Deze methode de clean html
 	 * @param div
 	 */
-	private String cleanHtml(Element div){
+	private String getHtml(Element div){
 		String hoofdstuk ="";
 		Elements pAll = div.getElementsByTag("p");
 		for(Element p : pAll){
@@ -104,5 +104,12 @@ public class Web {
 	        }
 		}
 		return hoofdstuk;
+	}
+	
+	private String cleanHTML(String html){
+		String cleanHTML =html;
+		cleanHTML.replace("&nbsp;", " ");
+		
+		return cleanHTML;
 	}
 }
