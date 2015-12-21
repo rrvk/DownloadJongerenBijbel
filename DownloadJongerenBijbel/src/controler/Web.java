@@ -21,8 +21,7 @@ public class Web {
 	 */
 	public String accesSite(String url) throws IOException{
 		URL oracle = new URL(url);
-        BufferedReader in = new BufferedReader(
-        new InputStreamReader(oracle.openStream()));
+        BufferedReader in = new BufferedReader(new InputStreamReader(oracle.openStream(), "UTF-8"));
         String inputLine;
         String html="";
         while ((inputLine = in.readLine()) != null){
@@ -108,7 +107,7 @@ public class Web {
 	
 	private String cleanHTML(String html){
 		String cleanHTML =html;
-		cleanHTML.replace("&nbsp;", " ");
+		cleanHTML= cleanHTML.replace("&nbsp;", " ");
 		
 		return cleanHTML;
 	}

@@ -31,7 +31,7 @@ public class Main {
 				}
 			}
 		}
-		ExecutorService executor = Executors.newFixedThreadPool(5);
+		ExecutorService executor = Executors.newFixedThreadPool(6);
 		for (int i = 0; i < url.length; i++) {
 			Runnable t = new ThreadWorker(url[i]);
 			executor.execute(t);
