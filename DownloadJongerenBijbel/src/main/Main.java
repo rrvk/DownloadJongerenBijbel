@@ -1,5 +1,8 @@
 package main;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import controler.ThreadWorker;
 
 public class Main {
@@ -28,8 +31,14 @@ public class Main {
 				}
 			}
 		}
-			ThreadWorker t = new ThreadWorker(url[i]);
-			new Thread(t).start();
+		ExecutorService executor = Executors.newFixedThreadPool(5);
+		for (int i = 0; i < url.length; i++) {
+			Runnable t = new ThreadWorker(url[i]);
+			executor.execute(t);
 		}
+		executor.shutdown();
+        while (!executor.isTerminated()) {}
+        System.out.println("Finished all threads");
+
 	}
 }

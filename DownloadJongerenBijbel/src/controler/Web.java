@@ -1,24 +1,24 @@
 package controler;
 
-import java.awt.im.InputContext;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.List;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 
 public class Web {
 	/**
 	 * Deze methode zorgt er voor dat de bijbel tekst uit pagina wordt gehaald, waarvan de link is meegegeven
-	 * Structuur jongerenbijbel.nl //29-12-2014
+	 * Structuur bijbel.eo.nl //19-12-2015
 	 * Wanneer null terug gegeven dan is er geen geldige iets gevonden
 	 */
-	@SuppressWarnings("unused")
 	public String accesSite(String url) throws IOException{
 		URL oracle = new URL(url);
         BufferedReader in = new BufferedReader(
@@ -36,113 +36,73 @@ public class Web {
         	Attributes attrClass = div.attributes();
         	String classValue = attrClass.get("class");
     		if (classValue.equals("bible")){
-    			System.out.println(div.ownText());
+    			return cleanHtml(div);
     		}
         }
         return null;
 	}
-	
 	/**
-	 * Deze methode haald de bijbel tekst clean uit de aangeleverde html
-	 * Werkte op 29-12-2014
-	 * @param html
-	 * @return De tekst
+	 * Deze methode de clean html
+	 * @param div
 	 */
-	private String cleanHTML(String html){
-		html = html.replaceAll("<div id=\"tx_jongerenbijbel_footnotes\" style=\"display: none;\"", "");
-		html = html.replaceAll("<div id=\"main\">", "");
-		html = html.replaceAll("<div class=\"poetry\">", "");
-		html = html.replaceAll("<div class=\"q\">", "");
-		html = html.replaceAll("<div class=\"sp\">", "");
-		html = html.replaceAll("<div class=\"qe\">", "");
-		html = html.replaceAll("<div class=\"qc\">", "\r\n");
-		html = html.replaceAll("<br />", "");
-		html = html.replaceAll("</div>", "\r\n");
-		html = html.replaceAll("<h2>", "");
-		html = html.replaceAll("</h2>", "\r\n");
-		html = html.replaceAll("<h3>", "");
-		html = html.replaceAll("</h3>", "\r\n");
-		html = html.replaceAll("<p>", "\r\n");
-		html = html.replaceAll("</p>", "");
-		html = html.replaceAll("<em>", "");
-		html = html.replaceAll("</em>", ". ");
-		//System.out.println(html);
-		//System.out.println("__________________________");
-		// de span met display none kan weg
-		html = removeSpanDisplayNone(html);
-		html = removeSpan(html);
-		html = removeImg(html);
-		html = removeLink(html);
-		return html;
-	}
-	
-	private String removeLink(String html){
-		String[] htmlTemp = html.split("<a");
-		while (htmlTemp.length>1){
-			String[] htmlTemp2 = htmlTemp[1].split("</a>");
-			// 	dit zou de rest moeten zijn
-			html = htmlTemp[0]+htmlTemp2[1];
-			for (int i = 2; i < htmlTemp2.length; i++) {
-				html+= "</a>"+htmlTemp2[i];
-			}
-			for (int i = 2; i < htmlTemp.length; i++) {
-				html+= "<a"+htmlTemp[i];
-			}
-			htmlTemp = html.split("<a");
+	private String cleanHtml(Element div){
+		String hoofdstuk ="";
+		Elements pAll = div.getElementsByTag("p");
+		for(Element p : pAll){
+			Elements spans = p.select("span");
+			String versN = "0";
+        	String vers = "";
+	        for (Element span : spans) {
+	        	Attributes attrSpann = span.attributes();
+				// eerst de versnummers krijgen
+	        	String classValue = attrSpann.get("class");
+	    		if (classValue.equals("verse")){
+	    			versN = span.childNode(0).toString();
+	    		}
+	    		// gaan kijken voor de bijbel tekst
+	    		String dataReactidValue = attrSpann.get("data-reactid");
+	    		if (dataReactidValue!=""){
+	    			List<Node> childNode = span.childNodes();
+	    			for (Node n :childNode){
+	    				if (n.getClass().toString().equals("class org.jsoup.nodes.TextNode")){
+	    					vers += n.toString();
+	    				}
+	    				else if (n.getClass().toString().equals("class org.jsoup.nodes.Element")){
+	    					Attributes attSp = n.attributes();
+	    					// eerst de versnummers krijgen
+	    					String classN = attSp.get("class");
+	    					if (classN.equals("devine-name")){
+	    						vers+=n.childNode(0).toString();
+	    					}
+	    					else if (classN.equals("poetry")){
+	    						List<Node> childNode2 = n.childNodes();
+	    		    			for (Node n2 :childNode2){
+	    		    				if (n2.getClass().toString().equals("class org.jsoup.nodes.TextNode")){
+	    		    					vers += n2.toString();
+	    		    				}
+	    		    			}
+	    					}
+	    					else if (classN.equals("sela")){
+	    						System.out.println("a");
+	    					}
+							else if (classN.equals("foreignText")){
+								List<Node> childNode2 = n.childNodes();
+								for (Node n2 :childNode2){
+	    		    				if (n2.getClass().toString().equals("class org.jsoup.nodes.TextNode")){
+	    		    					vers += n2.toString();
+	    		    				}
+	    		    			}
+	    					}
+	    				}
+	    			}
+	    		}
+	    		if (versN!="0" && vers!=""){
+	    			hoofdstuk+=versN+". "+vers+" ";
+	    			versN="0";
+	    			vers="";
+	    		}
+	        }
 		}
-		return html;
-	}
-	
-	private String removeSpan(String html){
-		String[] htmlTemp = html.split("<span");
-		while (htmlTemp.length>1){
-			String[] htmlTemp2 = htmlTemp[1].split(">");
-			// 	dit zou de rest moeten zijn
-			html = htmlTemp[0]+htmlTemp2[1];
-			for (int i = 2; i < htmlTemp2.length; i++) {
-				html+= ">"+htmlTemp2[i];
-			}
-			for (int i = 2; i < htmlTemp.length; i++) {
-				html+= "<span"+htmlTemp[i];
-			}
-			htmlTemp = html.split("<span");
-		}
-		html = html.replaceAll("</span>", "");
-		html = html.replaceAll("</span", "");
-		return html;
-	}
-	
-	private String removeImg(String html){
-		String[] htmlTemp = html.split("<img");
-		while (htmlTemp.length>1){
-			String[] htmlTemp2 = htmlTemp[1].split("/>");
-			// 	dit zou de rest moeten zijn
-			html = htmlTemp[0]+htmlTemp2[1];
-			for (int i = 2; i < htmlTemp2.length; i++) {
-				html+= "/>"+htmlTemp2[i];
-			}
-			for (int i = 2; i < htmlTemp.length; i++) {
-				html+= "<img"+htmlTemp[i];
-			}
-			htmlTemp = html.split("<img");
-		}
-		return html;
-	}
-	
-	private String removeSpanDisplayNone(String html){
-		String[] htmlTemp = html.split("<span style=\"display: none;\">");
-		while (htmlTemp.length>1){
-			String[] htmlTemp2 = htmlTemp[1].split("</span>");
-			// 	dit zou de rest moeten zijn
-			html = htmlTemp[0]+htmlTemp2[1];
-			for (int i = 2; i < htmlTemp2.length; i++) {
-				html+= "</span>"+htmlTemp2[i];
-			}
-			for (int i = 2; i < htmlTemp.length; i++) {
-				html+= "<span style=\"display: none;\">"+htmlTemp[i];
-			}
-			htmlTemp = html.split("<span style=\"display: none;\">");
-		}
-		return html;
+		return hoofdstuk;
 	}
 }
