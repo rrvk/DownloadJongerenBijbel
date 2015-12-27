@@ -23,15 +23,13 @@ public class Main {
 			for (int i = 0; i < bijbelboeken.length; i++) {
 				// eerst kleine letters en dubbele punten weghalen
 				bijbelboeken[i] = bijbelboeken[i].toLowerCase();
-				bijbelboeken[i] = bijbelboeken[i].replaceAll("ë", "e");
-				bijbelboeken[i] = bijbelboeken[i].replaceAll("ü", "u");
 				for (int j = 0; j < Integer.parseInt(hoofdstuknummers[i]); j++) {
 					url[count] =standaardUrl+bijbelboeken[i]+"/"+(j+1);
 					count++;
 				}
 			}
 		}
-		ExecutorService executor = Executors.newFixedThreadPool(6);
+		ExecutorService executor = Executors.newFixedThreadPool(3);
 		for (int i = 0; i < url.length; i++) {
 			Runnable t = new ThreadWorker(url[i]);
 			executor.execute(t);

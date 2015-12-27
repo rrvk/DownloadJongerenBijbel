@@ -20,6 +20,8 @@ public class Web {
 	 * Wanneer null terug gegeven dan is er geen geldige iets gevonden
 	 */
 	public String accesSite(String url) throws IOException{
+		url = url.replaceAll("ë", "e");
+		url = url.replaceAll("ü", "u");
 		URL oracle = new URL(url);
         BufferedReader in = new BufferedReader(new InputStreamReader(oracle.openStream(), "UTF-8"));
         String inputLine;
